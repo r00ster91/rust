@@ -96,7 +96,7 @@ pub struct VarsOs {
 /// # Panics
 ///
 /// While iterating, the returned iterator will panic if any key or value in the
-/// environment is not valid unicode. If this is not desired, consider using
+/// environment is not valid Unicode. If this is not desired, consider using
 /// [`env::vars_os()`].
 ///
 /// # Examples
@@ -710,7 +710,7 @@ pub struct ArgsOs {
 /// passed as-is.
 ///
 /// On glibc Linux systems, arguments are retrieved by placing a function in `.init_array`.
-/// Glibc passes `argc`, `argv`, and `envp` to functions in `.init_array`, as a non-standard
+/// glibc passes `argc`, `argv`, and `envp` to functions in `.init_array`, as a non-standard
 /// extension. This allows `std::env::args` to work even in a `cdylib` or `staticlib`, as it
 /// does on macOS and Windows.
 ///
@@ -735,17 +735,25 @@ pub fn args() -> Args {
     Args { inner: args_os() }
 }
 
-/// Returns the arguments which this program was started with (normally passed
+/// Returns the arguments that this program was started with (normally passed
 /// via the command line).
 ///
 /// The first element is traditionally the path of the executable, but it can be
-/// set to arbitrary text, and it may not even exist, so this property should
+/// set to arbitrary text, and may not even exist. This means this property should
 /// not be relied upon for security purposes.
 ///
-/// On glibc Linux systems, arguments are retrieved by placing a function in ".init_array".
-/// Glibc passes argc, argv, and envp to functions in ".init_array", as a non-standard extension.
-/// This allows `std::env::args` to work even in a `cdylib` or `staticlib`, as it does on macOS
-/// and Windows.
+/// On Unix systems the shell usually expands unquoted arguments with glob patterns
+/// (such as `*` and `?`). On Windows this is not done, and such arguments are
+/// passed as-is.
+///
+/// On glibc Linux systems, arguments are retrieved by placing a function in `.init_array`.
+/// glibc passes `argc`, `argv`, and `envp` to functions in `.init_array`, as a non-standard
+/// extension. This allows `std::env::args` to work even in a `cdylib` or `staticlib`, as it
+/// does on macOS and Windows.
+///
+/// Note that the returned iterator will not panic during iteration if any argument to the
+/// process is not valid Unicode. For more safety,
+/// use the [`args`] function instead.
 ///
 /// # Examples
 ///
